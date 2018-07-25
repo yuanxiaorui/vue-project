@@ -12,6 +12,8 @@ export function getToplist () {
     params: data
   }).then((res) => {
     return Promise.resolve(res.data)
+  }).catch((e) => {
+    console.log(e)
   })
 }
 export function getTopListCP (topid) {
@@ -22,12 +24,14 @@ export function getTopListCP (topid) {
     needNewCode: 1,
     tpl: 3,
     page: 'detail',
-    type: top,
+    type: 'top',
     topid
   })
   return axios.get(url, {
     params: data
   }).then((res) => {
     return Promise.resolve(res.data)
+  }).catch((e) => {
+    console.log(e)
   })
 }

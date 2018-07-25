@@ -36,7 +36,6 @@ export default {
         this.$router.push('/rank')
         return
       }
-      console.log('ooo:', this.toplist.id)
       getTopListCP(this.toplist.id).then((res) => {
         console.log('jj:', res)
       })
