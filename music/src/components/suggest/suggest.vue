@@ -61,14 +61,13 @@ export default {
   },
   methods: {
     // 获取搜索数据
-    search () {
+    _search () {
       this.page = 1
       this.hasMore = true
       this.$refs.suggest.scrollTo(0, 0)
       search(this.query, this.page, this.showSinger, perpage).then((res) => {
         if (res.code === ERR_OK) {
           this.result = this._genResult(res.data)
-          // console.log('pp:', this.result)
           // 检查是否还有数据
           this.checkMore(res.data)
         }
@@ -111,6 +110,7 @@ export default {
         return `${item.name}-${item.singer}`
       }
     },
+    // 上拉加载更多
     searchMore () {
       if (!this.hasMore) {
         return
@@ -119,7 +119,6 @@ export default {
       search(this.query, this.page, this.showSinger, perpage).then((res) => {
         if (res.code === ERR_OK) {
           this.result = this.result.concat(this._genResult(res.data))
-          // console.log('pp:', this.result)
           // 检查是否还有数据
           this.checkMore(res.data)
         }
@@ -134,7 +133,7 @@ export default {
     },
     // 点击跳转
     selectItem (item) {
-      if (item.type === 'singer') {
+      if (item.type === TYPE_SINGER) {
         const singer = new Singer({
           id: item.singermid,
           name: item.singername
@@ -154,7 +153,7 @@ export default {
   },
   watch: {
     query () {
-      this.search()
+      this._search()
     }
   }
 }

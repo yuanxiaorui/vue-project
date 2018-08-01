@@ -56,7 +56,7 @@ export default {
       this.query = query
     },
     blurInput () {
-      this.$refs.SearchBox.blur()
+      this.$refs.searchBox.blur()
     }
   }
 }
