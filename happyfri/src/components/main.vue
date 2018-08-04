@@ -1,18 +1,20 @@
 <template>
     <section>
-        <h3 style="background: #ff0;margin-left:10rem;color:red">{{$store.state.count}}</h3>
-        <h3 style="background: #ff0;margin-left:10rem;color:red">{{count}}</h3>
+        <!-- <h3 style="background: #ff0;margin-left:10rem;color:red">{{$store.state.count}}</h3> -->
+        <!-- <h3 style="background: #ff0;margin-left:10rem;color:red">{{count}}</h3> -->
         <!-- <button @click="$store.commit('add',10)">count加1</button>
         <button @click="$store.commit('reduce')">count减1</button> -->
 
         <!-- <button @click="add(10)">count加1</button>
         <button @click="reduce">count减1</button> -->
 
-        <button @click="addActions">count加1</button>
-        <button @click="reduceAction">count减1</button>
+        <!-- <button @click="addActions">count加1</button>
+        <button @click="reduceAction">count减1</button> -->
+
+		
     	<header class="top_tips">
-    		<span class="num_tip" v-if="fatherComponent==='home'">第一周</span>
-            <span class="num_tip" v-if="fatherComponent==='item'">题目1</span>
+    		<span class="num_tip" v-if="fatherComponent==='home'">{{level}}</span>
+            <span class="num_tip" v-if="fatherComponent==='item'">{{itemNum}}</span>
     	</header>
         <div v-if="fatherComponent==='home'">
             <div class="home_logo item_container_style"></div>
@@ -21,29 +23,21 @@
         <div  v-if="fatherComponent==='item'">
     		<div class="item_back item_container_style">
     			<div class="item_list_container">
-    				<header class="item_title">题目一</header>
+    				<header class="item_title">{{itemDetail[itemNum-1].topic_name}}</header>
     				<ul>
-    					<li  class="item_list">
-    						<span class="option_style has_choosed">A</span>
-    						<span class="option_detail">答案1</span>
-    					</li>
-                        <li  class="item_list">
-    						<span class="option_style">A</span>
-    						<span class="option_detail">答案1</span>
-    					</li>
-                        <li  class="item_list">
-    						<span class="option_style">A</span>
-    						<span class="option_detail">答案1</span>
-    					</li>
-                        <li  class="item_list">
-    						<span class="option_style">A</span>
-    						<span class="option_detail">答案1</span>
+    					<li  class="item_list"
+						v-for="(item,index) in itemDetail[itemNum-1].topic_answer"
+						:key="index"
+						@click="choosed(index, item.topic_answer_id)"
+						>
+							<span class="option_style" v-bind:class="{'has_choosed':choosedNum==index}">{{chooseType(index)}}</span>
+    						<span class="option_detail">{{item.answer_name}}</span>
     					</li>
     				</ul>
     			</div>
     		</div>
-    		<span class="next_item button_style"></span>
-    		<!-- <span class="submit_item button_style"></span> -->
+			<span class="next_item button_style" @click="nextItem" v-if="itemNum < itemDetail.length"></span>
+    		<span class="submit_item button_style" v-else @click="submitAnswer"></span>
     	</div>
         <div style="position:absolute;top:0;left:0;color:red"><router-link to="score">点击进入score页面</router-link></div>
     </section>    
@@ -51,7 +45,13 @@
 <script>
 import {mapState,mapMutations,mapGetters,mapActions} from 'vuex'
 export default {
-    props: ['fatherComponent'],
+	props: ['fatherComponent'],
+	data () {
+		return {
+			choosedNum: null, //选中答案索引
+			choosedId:null //选中答案id
+		}
+	},
     // 方法一：通过computed的计算属性直接赋值
     // computed: {
         // count() {
@@ -70,18 +70,60 @@ export default {
         //     return this.$store.getters.count
         // }
         // 方法2：用mapGetters简化模板写法
-        ...mapGetters(['count'])
+		// ...mapGetters(['count'])
+		...mapState([
+			'level','itemNum','itemDetail','timerId'
+		])
     },
     methods: {
-        ...mapMutations([
-            'add',
-            'reduce'
-        ]),
-        ...mapActions([
-            'addActions',
-            'reduceAction'
-        ])
-    }
+        // ...mapMutations([
+        //     'add',
+        //     'reduce'
+        // ]),
+        // ...mapActions([
+        //     'addActions',
+        //     'reduceAction'
+		// ])
+		...mapActions([
+			'initializeData','addNum'
+		]),
+		chooseType(type) {
+			switch(type) {
+				case 0 : return 'A';
+				case 1 : return 'B';
+				case 2 : return 'C';
+				case 3 : return 'D'
+			}
+		},
+		choosed (index,answerId) {
+			this.choosedNum = index;
+	  		this.choosedId = answerId;
+		},
+		nextItem() {
+			if (this.choosedNum!==null) {
+				this.choosedNum = null
+				//保存答案, 题目索引加一，跳到下一题
+	  			this.addNum(this.choosedId)
+			} else {
+				alert('你还没有选择答案！')
+			}
+		},
+		//到达最后一题，交卷，请空定时器，跳转分数页面
+		submitAnswer() {
+			if (this.choosedNum !== null) {
+	  			this.addNum(this.choosedId)
+	  			clearInterval(this.timerId)
+	  			this.$router.push('score')
+  			}else{
+  				alert('您还没有选择答案哦')
+  			}
+		}
+	},
+	created() {
+		if (this.fatherComponent=='home') {
+			this.initializeData();
+		}
+	}
 }
 </script>
 <style lang="less" scoped>
