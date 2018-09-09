@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="app">
-    <vue-header></vue-header>
+    <vue-header :seller="seller"></vue-header>
     <div class="tab border-1px">
       <div class="tab-item">
         <router-link to="/goods">商品</router-link>
@@ -12,24 +12,31 @@
         <router-link to="/seller">商家</router-link></div>
     </div>
     <router-view></router-view>
-    <!-- <vue-footer></vue-footer> -->
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 import vueHeader from './components/header/headers'
-// import Tab from './components/tab/tab'
-// import vueFooter from './components/footer/footers'
 
 export default {
   name: 'app',
+  data () {
+    return {
+      seller: {}
+    }
+  },
   components: {
     vueHeader
-    // Tab,
-    // vueFooter
   },
   created () {
-    
+    axios.get('/api/seller')
+      .then((res) => {
+        this.seller = res.data
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 }
 </script>
